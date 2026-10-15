@@ -234,6 +234,10 @@ struct Envelope<T, U>(Option<(T, Callback<T, U>)>);
 impl<T, U> Drop for Envelope<T, U> {
     fn drop(&mut self) {
         if let Some((val, cb)) = self.0.take() {
+            // A canceled callback has no receiver for this error.
+            if cb.is_canceled() {
+                return;
+            }
             cb.send(Err(TrySendError {
                 error: crate::Error::new_canceled().with("connection closed"),
                 message: Some(val),
@@ -252,7 +256,7 @@ impl<T, U> Drop for Callback<T, U> {
     fn drop(&mut self) {
         match self {
             Callback::Retry(tx) => {
-                if let Some(tx) = tx.take() {
+                if let Some(tx) = tx.take().filter(|tx| !tx.is_closed()) {
                     let _ = tx.send(Err(TrySendError {
                         error: dispatch_gone(),
                         message: None,
@@ -260,8 +264,8 @@ impl<T, U> Drop for Callback<T, U> {
                 }
             }
             Callback::NoRetry(tx) => {
-                if let Some(tx) = tx.take() {
-                    let _ = tx.send(Err(dispatch_gone()));
+                if let Some(tx) = tx.take().filter(|tx| !tx.is_closed()) {
+                    let _ = tx.send(Err(dispatch_gone());
                 }
             }
         }
@@ -279,7 +283,6 @@ fn dispatch_gone() -> crate::Error {
 }
 
 impl<T, U> Callback<T, U> {
-    #[cfg(feature = "http2")]
     pub(crate) fn is_canceled(&self) -> bool {
         match self {
             Callback::Retry(Some(tx)) => tx.is_closed(),
