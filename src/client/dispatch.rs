@@ -265,7 +265,7 @@ impl<T, U> Drop for Callback<T, U> {
             }
             Callback::NoRetry(tx) => {
                 if let Some(tx) = tx.take().filter(|tx| !tx.is_closed()) {
-                    let _ = tx.send(Err(dispatch_gone());
+                    let _ = tx.send(Err(dispatch_gone()));
                 }
             }
         }
