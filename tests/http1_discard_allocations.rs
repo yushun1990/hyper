@@ -94,7 +94,11 @@ impl AsyncRead for SilentIo {
 }
 
 impl AsyncWrite for SilentIo {
-    fn poll_write(mut self: Pin<&mut Self>, _: &mut Context<'_>, buf: &[u8]) -> Poll<std::io::Result<usize>> {
+    fn poll_write(
+        mut self: Pin<&mut Self>,
+        _: &mut Context<'_>,
+        buf: &[u8],
+    ) -> Poll<std::io::Result<usize>> {
         self.as_mut().get_mut().wrote = true;
         Poll::Ready(Ok(buf.len()))
     }
@@ -121,7 +125,7 @@ fn connection(response: &'static [u8]) -> (http1::SendRequest<Empty<Bytes>>, Con
     let mut cx = Context::from_waker(&waker);
     match handshake.as_mut().poll(&mut cx) {
         Poll::Ready(Ok(pair)) => pair,
-        other => panic!("local HTTP/1 handshake did not complete: {other:?}"),
+        _ => panic!("local HTTP/1 handshake did not complete"),
     }
 }
 
