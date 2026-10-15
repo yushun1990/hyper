@@ -351,3 +351,7 @@ required-features = ["full"]
 name = "h1_ready_in_flight"
 path = "tests/h1_ready_in_flight.rs"
 required-features = ["full"]
+[[test]]
+name = "http1_discard_allocations"
+path = "tests/http1_discard_allocations.rs"
+required-features = ["client", "http1"]
