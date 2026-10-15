@@ -149,7 +149,7 @@ impl Sender {
         self.send_error(crate::Error::new_body_write_aborted());
     }
 
-    fn is_closed(&self) -> bool {
+    pub(crate) fn is_closed(&self) -> bool {
         !self.shared.state.lock().panic_if_poisoned().receiver_open
     }
 }
