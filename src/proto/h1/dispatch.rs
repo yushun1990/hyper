@@ -574,7 +574,7 @@ impl SenderDropGuard {
 
 impl Drop for SenderDropGuard {
     fn drop(&mut self) {
-        if let Some(mut sender) = self.0.take() {
+        if let Some(mut sender) = self.0.take().filter(|sender| !sender.is_closed()) {
             sender.send_error(crate::Error::new_incomplete());
         }
     }
