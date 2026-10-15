@@ -120,7 +120,8 @@ fn connection(response: &'static [u8]) -> (http1::SendRequest<Empty<Bytes>>, Con
         offset: 0,
         wrote: false,
     };
-    let mut handshake = Box::pin(http1::Builder::new().handshake::<_, Empty<Bytes>>(TokioIo::new(io)));
+    let mut handshake =
+        Box::pin(http1::Builder::new().handshake::<_, Empty<Bytes>>(TokioIo::new(io)));
     let waker = futures_util::task::noop_waker();
     let mut cx = Context::from_waker(&waker);
     match handshake.as_mut().poll(&mut cx) {
